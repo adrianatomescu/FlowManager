@@ -9,6 +9,7 @@ using namespace std;
 class Step {
 public:
 	virtual void execute() = 0;
+	virtual string getDescription() const = 0;
 };
 
 class TitleStep : public Step {
@@ -109,18 +110,46 @@ public:
 	void execute() override;
 };
 
+class Flow {
+private:
+	string flowName;
+	Step** steps; // maxim 100 de pasi intr un flux
+	int totalSteps, currentStepIndex;
+	bool* skippedSteps 
+
+public:
+	Flow(const string& name) : flowName(name), totalSteps(0), currentStepIndex(0);
+		/*
+		* for (int i = 0; i < 100; i++) {
+			skippedSteps[i] = false;
+		}
+		*/
+	
+
+	~Flow();
+	void addStep(Step* step);
+	void run();
+	void nextStep();
+	void skipToStep(int index);
+
+	string getFlowName() const {
+		return flowName;
+	}
+};
+
 class FlowManager {
 private:
 	Flow* flows[100]; // maxim 100 fluxturi
 	int totalFlows;
 	void addPredefinedSteps(Flow* flow);
 
-public:
-	FlowManager();
+	FlowManager() : totalFlows(0);
 	void createFlow(const string& flowName);
 	void deleteFlow(const string& flowName);
 	void addStepToFlow(const string& flowName, Step* step);
 	void createFlowWithPredefinedSteps(const string& flowName);
+	void showAvailableSteps();
+	void showStepDescriptions();
 	
 };
 

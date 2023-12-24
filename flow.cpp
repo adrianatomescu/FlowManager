@@ -3,11 +3,22 @@
 
 using namespace std;
 
+TitleStep::TitleStep(const string& t, const string& st) : title(t), subtitle(st) {
+	if (title.empty() || subtitle.empty()) {
+		throw invalid_argument("Title and subtitle must not be empty.");
+	}
+}
 void TitleStep::execute() {
 	cout << "Title step\n";
 	cout << "Title: " << title << endl;
 	cout << "Subtitle: " << subtitle << endl;
 
+}
+
+TextStep::TextStep(const string& t, const string& c) : title(t), copy(c) {
+	if (title.empty() || copy.empty()) {
+		throw invalid_argument("Title and copy must not be empty.");
+	}
 }
 
 void TextStep::execute() {
@@ -16,10 +27,22 @@ void TextStep::execute() {
 	cout << "Copy: " << copy << endl;
 }
 
+TextInputStep::TextInputStep(const string& d, const string& input) : description(d), textInput(input) {
+	if (description.empty()) {
+		throw invalid_argument("Description must not be empty for Text Input Step.");
+	}
+}
+
 void TextInputStep::execute() {
 	cout << "Text Input Step\n";
 	cout << "Description: " << description << endl;
 	cout << "Text Input: " << textInput << endl;
+}
+
+NumberInputStep::NumberInputStep(const string& d, float n) : description(d), numberInput(n) {
+	if (description.empty()) {
+		throw invalid_argument("Description must not be empty for Number Input Step.");
+	}
 }
 
 void NumberInputStep::execute() {
@@ -143,6 +166,59 @@ void FlowManager::createFlowWithPredefinedSteps(const string& flowName) {
 		flows[totalFlows++] = newFlow;
 	}
 	else {
-		cout << "Maximul limit reached.\n";
+		cout << "Maximum limit reached.\n";
+	}
+}
+
+// Implementarea metodelor pentru a afisa descrierile pasilor disponibili
+void FlowManager::showAvailableSteps() {
+	cout << "Available Steps:\n";
+	cout << "1. Title Step: Create a title and a subtitle.\n";
+	cout << "2. Text Step: Add a title and a text description.\n";
+	cout << "3. Text Input Step: Specify the expected input.\n";
+	cout << "4. Number Input Step: Describe the expected number input.\n";
+	cout << "5. Calculus Step: Perform mathematical operations on previous inputs.\n";
+	cout << "6. Display Step: Show content from a previous step.\n";
+	cout << "7. Text File Input Step: Add a .txt file.\n";
+	cout << "8. CSV File Input Step: Add a .csv file.\n";
+	cout << "9. Output Step: Generate a text file as output.\n";
+	cout << "10. End Step: Signal the end of the flow.\n";
+}
+
+void FlowManager::showStepDescriptions() {
+	cout << "Step Descriptions:\n";
+	cout << "Title Step: Create a title and a subtitle.\n";
+	cout << "Text Step: Add a title and a text description.\n";
+	cout << "Text Input Step: Specify the expected input.\n";
+	cout << "Number Input Step: Describe the expected number input.\n";
+	cout << "Calculus Step: Perform mathematical operations on previous inputs.\n";
+	cout << "Display Step: Show content from a previous step.\n";
+	cout << "Text File Input Step: Add a .txt file.\n";
+	cout << "CSV File Input Step: Add a .csv file.\n";
+	cout << "Output Step: Generate a text file as output.\n";
+	cout << "End Step: Signal the end of the flow.\n";
+}
+
+void Flow::run() {
+	for (int i = 0; i < totalSteps; i++) {
+		if (!skippedSteps[i]) {
+			currentStepIndex = i; // actualizam indexul pasului curent
+			steps[currentStepIndex]->execute();
+		}
+	}
+}
+
+void Flow::nextStep() {
+	if (currentStepIndex < totalSteps) {
+		currentStepIndex++;
+	}
+}
+
+void Flow::skipToStep(int index) {
+	if (index >= 0 && index < totalSteps) {
+		skippedSteps[index] == true;
+		if (currentStepIndex == index) {
+			nextStep(); // avanseaza la pasul urmator
+		}
 	}
 }
