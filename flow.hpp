@@ -26,18 +26,17 @@ private:
 	string title, copy;
 
 public:
-	TextStap(const string& t, const string& c) : title(t), copy(c) {}
+	TextStep(const string& t, const string& c) : title(t), copy(c) {}
 
-	void execute() oeverride;
+	void execute() override;
 };
 
 class TextInputStep : public Step {
-
-private: 
+private:
 	string description, textInput;
 
 public:
-	TextInput(const string& d, const string& input) : description(d), textInput(input) {}
+	TextInputStep(const string& d, const string& input) : description(d), textInput(input) {}
 
 	void execute() override;
 };
@@ -48,7 +47,7 @@ private:
 	float numberInput;
 
 public:
-	NumberInputStep(const string& d, const string& n) : description(d), numberInput(n) {}
+	NumberInputStep(const string& d, float n) : description(d), numberInput(n) {}
 
 	void execute() override;
 };
@@ -67,7 +66,7 @@ public:
 class DisplayStep : public Step {
 private:
 	int step;
-	
+
 public:
 	DisplayStep(int s) : step(s) {}
 
@@ -89,7 +88,7 @@ private:
 	string description, fileName;
 
 public:
-	TextFileInputStep(const string& d, const string& f) : description(d), fileName(f) {}
+	CSVFileInputStep(const string& d, const string& f) : description(d), fileName(f) {}
 
 	void execute() override;
 };
@@ -102,9 +101,27 @@ private:
 public:
 	OutputStep(int s, const string& f, const string& t, const string& d) : step(s), fileName(f), title(t), description(d) {}
 
-	void execute oeverride;
+	void execute() override;
 };
 
 class EndStep : public Step {
-
+public:
+	void execute() override;
 };
+
+class FlowManager {
+private:
+	Flow* flows[100]; // maxim 100 fluxturi
+	int totalFlows;
+	void addPredefinedSteps(Flow* flow);
+
+public:
+	FlowManager();
+	void createFlow(const string& flowName);
+	void deleteFlow(const string& flowName);
+	void addStepToFlow(const string& flowName, Step* step);
+	void createFlowWithPredefinedSteps(const string& flowName);
+	
+};
+
+#endif //FLOW_HPP
