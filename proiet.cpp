@@ -330,7 +330,7 @@ public:
     void addNumberInputStep(const string& description, float numberInput) {
         NumberInputStep* numberInputStep = new NumberInputStep(description, numberInput);
         steps.push_back(numberInputStep);
-        numberInputStepsIndex.push_back(steps.size() - 1); // Indexul pașului de tip NumberInput
+        numberInputStepsIndex.push_back(steps.size() - 1); // Indexul pasului de tip NumberInput
     }
 
     void addCalculusStep(int step1Index, int step2Index, const string& operation) {
