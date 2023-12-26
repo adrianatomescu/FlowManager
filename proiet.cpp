@@ -107,8 +107,6 @@ public:
 };
 
 
-
-
 class CalculusStep : public ProcessStep
 {
 private:
@@ -144,13 +142,14 @@ public:
     void execute() const override
     {
         cout << "Display Step\n";
-        cout << "Step: " << step << endl;
+        cout << "Information from Step " << step+ 1 << ":\n";
+        steps[step]->showDescription();
     }
 
-    void showDescription() const override
-    {
+    void showDescription() const override {
         cout << "Display Step\n";
-        cout << "Step: " << step << endl;
+        cout << "Information from Step " << step + 1 << ":\n";
+        steps[step]->showDescription();
     }
 
 };
@@ -249,6 +248,7 @@ class Process {
 private:
     vector<ProcessStep*> steps;
     vector<int> numberInputStepsIndex;
+    vector<int> textOrCSVInputStepsIndex;
     int currentStepIndex;
 
 public:
@@ -390,6 +390,33 @@ public:
         cout << "Operation: Step " << realStep1Index + 1 << " " << operation << " Step " << realStep2Index + 1 << endl;
         cout << "Result: " << result << endl;
     }
+
+    void addDisplayStep(int previousStepIndex) {
+        if (previousStepIndex < 0 || previousStepIndex >= steps.size()) {
+            cerr << "Invalid previous step index.\n";
+            return;
+        }
+
+        if (!(steps[previousStepIndex]->showDescription().find("Text Input") != string::npos || steps[previousStepIndex]->showDescription().find("CSV File") != string::npos)) {
+            cerr << "Previous step must be TEXT INPUT or CSV INPUT.\n";
+            return;
+        }
+
+        DisplayStep* displayStep = new DisplayStep(previousStepIndex);
+        steps.push_back(displayStep);
+    }
+
+    void addTextInputStep(const string& description, const string& textInput) {
+        TextInputStep* textInputStep = new TextInputStep(description, textInput);
+        steps.push_back(textInputStep);
+        textOrCSVInputStepsIndex.push_back(steps.size() - 1); // Indexul pasului de tip TEXT INPUT
+    }
+
+    void addCSVFileStep(const string& description, const string& fileName) {
+        CSVFileStep* csvFileStep = new CSVFileStep(description, fileName);
+        steps.push_back(csvFileStep);
+        textOrCSVInputStepsIndex.push_back(steps.size() - 1); // Indexul pasului de tip CSV INPUT
+    }
 };
 
 int main() {
@@ -459,6 +486,13 @@ int main() {
 
         // Crearea unui nou flux
         myProcess.createNewFlow();
+
+        myProcess.addTextInputStep("Description for text input:", "Sample text input");
+        myProcess.addCSVFileStep("Description for CSV file input", "data.csv");
+
+        myProcess.addDisplayStep(0); 
+        myProcess.addDisplayStep(1); 
+
     }
     catch (const out_of_range& e) {
         cerr << "Error: " << e.what() << endl;
