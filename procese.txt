@@ -1,0 +1,15 @@
+1.Procesul de Inregistrare a Clientilor pentru Evenimente:
+TITLE step: Inregistrare Clienti Eveniment
+TEXT INPUT step: Nume
+TEXT INPUT step: Prenume
+NUMBER INPUT step: 3
+OUTPUT step: Inregistrare finalizata 
+END step
+
+2.Procesul de Aprobare a Cererilor de Concediu:
+TITLE step: Aprobare Cerere Concediu
+TEXT step: Datele angajatilor si motivul cererii
+TEXT INPUT step: Nume
+TEXT INPUT step: Motiv cerere
+OUTPUT step: Generare document 
+END step
