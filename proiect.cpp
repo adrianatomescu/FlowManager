@@ -34,7 +34,7 @@ public:
         }
     }
 
-    // Metoda pentru adăugarea unui pas în proces
+    // Metoda pentru adaugarea unui pas în proces
     void addStep(Step *newStep)
     {
         if (stepCount < 100)
@@ -194,7 +194,7 @@ class CalculusStep : public Step
 private:
     int steps;
     string operation;
-    float result; // Rezultatul operației
+    float result; // rezultatul operatiei
 
 public:
     CalculusStep(int steps, const string &operation) : steps(steps), operation(operation), result(0) {}
@@ -291,7 +291,7 @@ public:
         file << "Nume fisier: " << fileName << endl;
     }
 
-    // Metoda pentru a scrie parametrii într-un fișier separat
+    // Metoda pentru a scrie parametrii intr-un fisier separat
     void writeParametersToFile() const
     {
         ofstream paramsFile(fileName + "_params.txt");
@@ -354,7 +354,6 @@ public:
     }
 };
 
-// Clasa pentru DISPLAY Steps
 // Clasa pentru DISPLAY Steps
 class DisplaySteps : public Step
 {
@@ -647,7 +646,7 @@ void addStepsToProcess(ofstream &file)
             file << "Numar: " << steps << "\n";
             file << "Operatie: " << operation << "\n";
 
-            // Verificați existența unui pas anterior de tip NumberInputStep
+            // Verificati existenta unui pas anterior de tip NumberInputStep
             bool numberInputFound = false;
             for (int i = 0; i < newProcess->getStepCount(); ++i)
             {
@@ -658,10 +657,10 @@ void addStepsToProcess(ofstream &file)
                     float inputNumber = dynamic_cast<NumberInputStep *>(step)->getNumber();
                     CalculusStep *calculusStep = new CalculusStep(steps, operation);
 
-                    // Efectuați operația specificată între parametrii NumberInput și Calculus
+                    // Efectuati operatia specifica intre parametrii NumberInput si Calculus
                     calculusStep->performOperation(inputNumber);
 
-                    // Adăugați pasul CalculusStep în proces
+                    // Adaugati pasul CalculusStep in proces
                     newProcess->addStep(calculusStep);
 
                     // Afisati rezultatul
@@ -671,7 +670,7 @@ void addStepsToProcess(ofstream &file)
                 }
             }
 
-            // Dacă nu a fost găsit un pas de tip NumberInputStep, afișați un mesaj
+            // Daca nu a fost gasit un pas de tip NumberInputStep, afisam mesajul
             if (!numberInputFound)
             {
                 cout << "Trebuie să adăugați mai întâi un pas de tip NumberInputStep pentru a efectua o operație Calculus." << endl;
@@ -699,9 +698,6 @@ case 6:
 
     break;
 }
-
-
-
 
         case 7:
         {
@@ -759,7 +755,7 @@ case 6:
             file << "Descriere: " << description << "\n";
             newProcess->addStep(new OutputStep(step, fileName, title, description));
 
-            // Creare fișier de output
+            // Creare fisier de output
             OutputStep output(step, fileName, title, description);
             output.createOutputFile();
             break;
@@ -1173,13 +1169,13 @@ void analyzeProcess(const string &processName)
     int totalErrors = 0;
     int completedProcessCount = 0;
 
-    bool found = false; // Inițializăm found cu false pentru fiecare rulare
+    bool found = false; // initializam found cu false pentru fiecare rulare
     while (getline(file, line))
     {
         if (line == processName)
         {
             found = true;
-            ++initiatedCount; // Incrementăm inițierea procesului găsit
+            ++initiatedCount; // incrementam initierea procesului gasit
 
             while (getline(file, line))
             {
@@ -1190,8 +1186,8 @@ void analyzeProcess(const string &processName)
                 }
                 else if (line == "Procesul ruleaza fara pasul:")
                 {
-                    getline(file, line); // Trecem peste linia următoare
-                    getline(file, line); // Obținem informația despre pas
+                    getline(file, line); // trecem peste linia urmatoare
+                    getline(file, line); // obtinem informatia despre pas
 
                     if (line.substr(0, 7) == "Eroare:")
                     {
