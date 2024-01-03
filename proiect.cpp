@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <string>
 #include <sstream>
 #include <algorithm>
@@ -21,7 +21,7 @@ public:
 class Process
 {
 private:
-    string name;
+    string name, processName;
     Step *steps[100]; // numarul maxim de pasi
     int stepCount;    // numarul actual de pasi
 
@@ -46,6 +46,11 @@ public:
         {
             cout << "Numarul maxim de pasi a fost atins." << endl;
         }
+    }
+
+    std::string getName() const
+    {
+        return processName;
     }
 
     int getStepCount() const
@@ -164,6 +169,11 @@ public:
         return "NUMBER INPUT";
     }
 
+    float getNumber() const
+    {
+        return numberInput;
+    }
+
     void displayStepInfo() const override
     {
         cout << "Description: " << description << endl;
@@ -184,9 +194,10 @@ class CalculusStep : public Step
 private:
     int steps;
     string operation;
+    float result; // Rezultatul operației
 
 public:
-    CalculusStep(int steps, const string &operation) : steps(steps), operation(operation) {}
+    CalculusStep(int steps, const string &operation) : steps(steps), operation(operation), result(0) {}
 
     string getStepName() const override
     {
@@ -197,39 +208,59 @@ public:
     {
         cout << "Steps: " << steps << endl;
         cout << "Operation: " << operation << endl;
+        cout << "Result: " << result << endl;
     }
 
-    void writeDetailsToFile(ofstream &file) const
+    void writeDetailsToFile(ofstream &file) const override
     {
         file << "CALCULUS Step" << endl;
         file << "Numar: " << steps << endl;
         file << "Operatie: " << operation << endl;
-    }
-};
-
-// Clasa pentru DISPLAY Steps
-class DisplaySteps : public Step
-{
-private:
-    int step;
-
-public:
-    DisplaySteps(int step) : step(step) {}
-
-    string getStepName() const override
-    {
-        return "DISPLAY";
+        file << "Rezultat: " << result << endl;
     }
 
-    void displayStepInfo() const override
+    void performOperation(float inputNumber)
     {
-        cout << "Step: " << step << endl;
+        if (operation == "+")
+        {
+            result = inputNumber + steps;
+        }
+        else if (operation == "-")
+        {
+            result = inputNumber - steps;
+        }
+        else if (operation == "*")
+        {
+            result = inputNumber * steps;
+        }
+        else if (operation == "/")
+        {
+            if (steps != 0)
+            {
+                result = inputNumber / steps;
+            }
+            else
+            {
+                cout << "Nu se poate împărți la zero." << endl;
+            }
+        }
+        else if (operation == "min")
+        {
+            result = min(inputNumber, static_cast<float>(steps));
+        }
+        else if (operation == "max")
+        {
+            result = max(inputNumber, static_cast<float>(steps));
+        }
+        else
+        {
+            cout << "Operație necunoscută." << endl;
+        }
     }
 
-    void writeDetailsToFile(ofstream &file) const
+    float getResult() const
     {
-        file << "DISPLAY Step" << endl;
-        file << "Numar: " << step << endl;
+        return result;
     }
 };
 
@@ -259,6 +290,23 @@ public:
         file << "Descriere: " << description << endl;
         file << "Nume fisier: " << fileName << endl;
     }
+
+    // Metoda pentru a scrie parametrii într-un fișier separat
+    void writeParametersToFile() const
+    {
+        ofstream paramsFile(fileName + "_params.txt");
+        if (paramsFile.is_open())
+        {
+            paramsFile << "Descriere: " << description << endl;
+            paramsFile << "Nume fisier: " << fileName << endl;
+            paramsFile.close();
+            cout << "Parametrii pasului TEXT FILE input au fost scrisi in fisierul " << fileName << "_params.txt" << endl;
+        }
+        else
+        {
+            cout << "Nu s-a putut crea fisierul pentru parametrii pasului TEXT FILE input." << endl;
+        }
+    }
 };
 
 // Clasa pentru CSV FILE Input Step
@@ -287,7 +335,69 @@ public:
         file << "Descriere: " << description << endl;
         file << "Nume fisier: " << fileName << endl;
     }
+
+    // Metoda pentru a scrie parametrii într-un fișier separat
+    void writeParametersToFile() const
+    {
+        ofstream paramsFile(fileName + "_params.csv");
+        if (paramsFile.is_open())
+        {
+            paramsFile << "Descriere: " << description << endl;
+            paramsFile << "Nume fisier: " << fileName << endl;
+            paramsFile.close();
+            cout << "Parametrii pasului CSV FILE input au fost scrisi in fisierul " << fileName << "_params.csv" << endl;
+        }
+        else
+        {
+            cout << "Nu s-a putut crea fisierul pentru parametrii pasului CSV FILE input." << endl;
+        }
+    }
 };
+
+// Clasa pentru DISPLAY Steps
+// Clasa pentru DISPLAY Steps
+class DisplaySteps : public Step
+{
+private:
+    int step;
+
+public:
+    DisplaySteps(int step) : step(step) {}
+
+    string getStepName() const override
+    {
+        return "DISPLAY";
+    }
+
+    void displayStepInfo() const override
+    {
+        cout << "Step: " << step << endl;
+    }
+
+    void writeDetailsToFile(ofstream &file) const override
+    {
+        file << "DISPLAY Step" << endl;
+        file << "Numar: " << step << endl;
+    }
+
+    void displayFileContent() const
+    {
+        string fileExtension = (step == 1) ? "_params.txt" : "_params.csv";
+        string fileName = (step == 1) ? "nume_fisier_text" : "nume_fisier_csv";
+
+        ifstream fileToDisplay(fileName + fileExtension);
+        if (fileToDisplay.is_open()) {
+            string line;
+            while (getline(fileToDisplay, line)) {
+                cout << line << endl;
+            }
+            fileToDisplay.close();
+        } else {
+            cout << "Nu s-a putut citi fisierul asociat pasului TextFileInputStep sau CSVFileInputStep." << endl;
+        }
+    }
+};
+
 
 // Clasa pentru OUTPUT Step
 class OutputStep : public Step
@@ -321,6 +431,24 @@ public:
         file << "Title: " << title << endl;
         file << "Description: " << description << endl;
     }
+
+    void createOutputFile() const
+    {
+        std::ofstream outputFile(fileName + "_output.txt");
+
+        if (!outputFile.is_open())
+        {
+            std::cout << "Nu s-a putut crea fisierul de output." << std::endl;
+            return;
+        }
+
+        outputFile << "Step: " << step << std::endl;
+        outputFile << "File Name: " << fileName << std::endl;
+        outputFile << "Title: " << title << std::endl;
+        outputFile << "Description: " << description << std::endl;
+
+        outputFile.close();
+    }
 };
 
 // Clasa pentru END Step
@@ -343,6 +471,48 @@ class EndStep : public Step
     }
 };
 
+// Gestionare erori
+class MyException : public std::exception
+{
+public:
+    const char *what() const noexcept override
+    {
+        return "Exceptie";
+    }
+};
+
+class FileOperationException : public std::exception
+{
+public:
+    explicit FileOperationException(const std::string &message) : errorMessage(message) {}
+
+    const char *what() const noexcept override
+    {
+        return errorMessage.c_str();
+    }
+
+private:
+    std::string errorMessage;
+};
+
+class ProcessNotFoundException : public std::exception
+{
+public:
+    const char *what() const noexcept override
+    {
+        return "Procesul nu a fost găsit.";
+    }
+};
+
+class StepNotFoundException : public std::exception
+{
+public:
+    const char *what() const noexcept override
+    {
+        return "Pasul nu a fost găsit în proces.";
+    }
+};
+
 // Afisare pasi disponibili
 void displayAvailableSteps()
 {
@@ -360,7 +530,8 @@ void displayAvailableSteps()
 }
 
 // Afisare creare proces(timestamp)
-std::string generateTimestamp() {
+std::string generateTimestamp()
+{
     std::string timestamp;
     time_t now = time(0);
     tm *ltm = localtime(&now);
@@ -387,6 +558,7 @@ void addStepsToProcess(ofstream &file)
     Process *newProcess = new Process("Nume proces");
 
     string processDescription;
+    string fileName;
     cout << "Introduceti titlul procesului: ";
     cin.ignore();
     getline(cin, processDescription);
@@ -414,6 +586,7 @@ void addStepsToProcess(ofstream &file)
             file << "TITLE step\n";
             file << "Titlu: " << title << "\n";
             file << "Subtitlu: " << subtitle << "\n";
+            newProcess->addStep(new TitleStep(title, subtitle));
             break;
         }
         case 2:
@@ -424,6 +597,9 @@ void addStepsToProcess(ofstream &file)
             getline(cin, title);
             cout << "Introduceti textul: ";
             getline(cin, copy);
+            file << "TEXT step\n";
+            file << "Titlu: " << title << "\n";
+            file << "Text: " << copy << "\n";
             newProcess->addStep(new TextStep(title, copy));
             break;
         }
@@ -436,6 +612,9 @@ void addStepsToProcess(ofstream &file)
             getline(cin, description);
             cout << "Introduceti textul: ";
             getline(cin, textInput);
+            file << "TEXT INPUT step\n";
+            file << "Descriere: " << description << "\n";
+            file << "Text: " << textInput << "\n";
             newProcess->addStep(new TextInputStep(description, textInput));
             break;
         }
@@ -449,10 +628,12 @@ void addStepsToProcess(ofstream &file)
             getline(cin, description);
             cout << "Introduceti un numar: ";
             cin >> numberInput;
+            file << "NUMBER INPUT step\n";
+            file << "Descriere: " << description << "\n";
+            file << "Numar: " << numberInput << "\n";
             newProcess->addStep(new NumberInputStep(description, numberInput));
             break;
         }
-
         case 5:
         {
             int steps;
@@ -462,18 +643,65 @@ void addStepsToProcess(ofstream &file)
             cout << "Introduceti operatia: ";
             cin.ignore();
             getline(cin, operation);
-            newProcess->addStep(new CalculusStep(steps, operation));
+            file << "CALCULUS step\n";
+            file << "Numar: " << steps << "\n";
+            file << "Operatie: " << operation << "\n";
+
+            // Verificați existența unui pas anterior de tip NumberInputStep
+            bool numberInputFound = false;
+            for (int i = 0; i < newProcess->getStepCount(); ++i)
+            {
+                Step *step = newProcess->getStep(i);
+                if (dynamic_cast<NumberInputStep *>(step))
+                {
+                    numberInputFound = true;
+                    float inputNumber = dynamic_cast<NumberInputStep *>(step)->getNumber();
+                    CalculusStep *calculusStep = new CalculusStep(steps, operation);
+
+                    // Efectuați operația specificată între parametrii NumberInput și Calculus
+                    calculusStep->performOperation(inputNumber);
+
+                    // Adăugați pasul CalculusStep în proces
+                    newProcess->addStep(calculusStep);
+
+                    // Afisati rezultatul
+                    cout << "Rezultat: " << calculusStep->getResult() << endl;
+
+                    break;
+                }
+            }
+
+            // Dacă nu a fost găsit un pas de tip NumberInputStep, afișați un mesaj
+            if (!numberInputFound)
+            {
+                cout << "Trebuie să adăugați mai întâi un pas de tip NumberInputStep pentru a efectua o operație Calculus." << endl;
+            }
             break;
         }
 
-        case 6:
-        {
-            int step;
-            cout << "Introduceti un numar: ";
-            cin >> step;
-            newProcess->addStep(new DisplaySteps(step));
-            break;
-        }
+case 6:
+{
+    int step;
+    cout << "Introduceti un numar (1-txt, 2-csv): ";
+    cin >> step;
+    file << "DISPLAY INPUT step\n";
+    file << "Numar: " << step << "\n";
+
+    if (step == 1 || step == 2) {
+        DisplaySteps *displayStep = new DisplaySteps(step);
+        newProcess->addStep(displayStep);
+
+        // Afisam continutul fisierului asociat pasului TextFileInputStep sau CSVFileInputStep
+        displayStep->displayFileContent();
+    } else {
+        cout << "Selectie invalida pentru afisare. Va rugam selectati 1 sau 2 pentru afisarea continutului fisierului." << endl;
+    }
+
+    break;
+}
+
+
+
 
         case 7:
         {
@@ -482,9 +710,14 @@ void addStepsToProcess(ofstream &file)
             cin.ignore();
             getline(cin, description);
             cout << "Introduceti numele fisierului: ";
-            cin.ignore();
             getline(cin, fileName);
-            newProcess->addStep(new TextFileInputStep(description, fileName));
+            file << "TEXT FILE input step\n";
+            file << "Descriere: " << description << "\n";
+            file << "Nume fisier: " << fileName << "\n";
+            TextFileInputStep *textFileStep = new TextFileInputStep(description, fileName);
+            textFileStep->writeDetailsToFile(file);
+            newProcess->addStep(textFileStep);
+            textFileStep->writeParametersToFile();
             break;
         }
 
@@ -495,9 +728,14 @@ void addStepsToProcess(ofstream &file)
             cin.ignore();
             getline(cin, description);
             cout << "Introduceti numele fisierului: ";
-            cin.ignore();
             getline(cin, fileName);
-            newProcess->addStep(new CSVFileInputStep(description, fileName));
+            file << "CSV FILE input step\n";
+            file << "Descriere: " << description << "\n";
+            file << "Nume fisier: " << fileName << "\n";
+            CSVFileInputStep *csvFileStep = new CSVFileInputStep(description, fileName);
+            csvFileStep->writeDetailsToFile(file);
+            newProcess->addStep(csvFileStep);
+            csvFileStep->writeParametersToFile();
             break;
         }
 
@@ -511,12 +749,19 @@ void addStepsToProcess(ofstream &file)
             cin.ignore();
             getline(cin, fileName);
             cout << "Introduceti titlul: ";
-            cin.ignore();
             getline(cin, title);
             cout << "Introduceti descrierea: ";
-            cin.ignore();
             getline(cin, description);
+            file << "OUTPUT step\n";
+            file << "Numar: " << step << "\n";
+            file << "Nume fisier: " << fileName << "\n";
+            file << "Titlu: " << title << "\n";
+            file << "Descriere: " << description << "\n";
             newProcess->addStep(new OutputStep(step, fileName, title, description));
+
+            // Creare fișier de output
+            OutputStep output(step, fileName, title, description);
+            output.createOutputFile();
             break;
         }
 
@@ -766,7 +1011,6 @@ void runProcess(const string &processName)
 
     delete currentProcess;
 }
-
 // Stergere proces
 void deleteProcess(const string &processName)
 {
@@ -910,10 +1154,87 @@ void deleteStep(const string &processName, const string &stepName)
     }
 }
 
+// Analiza procesului
+void analyzeProcess(const string &processName)
+{
+    ifstream file("procese.txt");
+
+    if (!file.is_open())
+    {
+        cout << "Nu s-a putut deschide fisierul de procese." << endl;
+        return;
+    }
+
+    string line;
+    int initiatedCount = 0;
+    int completedCount = 0;
+    int skippedStepCount = 0;
+    int errorScreenCount = 0;
+    int totalErrors = 0;
+    int completedProcessCount = 0;
+
+    bool found = false; // Inițializăm found cu false pentru fiecare rulare
+    while (getline(file, line))
+    {
+        if (line == processName)
+        {
+            found = true;
+            ++initiatedCount; // Incrementăm inițierea procesului găsit
+
+            while (getline(file, line))
+            {
+                if (line == "END step")
+                {
+                    ++completedProcessCount;
+                    break;
+                }
+                else if (line == "Procesul ruleaza fara pasul:")
+                {
+                    getline(file, line); // Trecem peste linia următoare
+                    getline(file, line); // Obținem informația despre pas
+
+                    if (line.substr(0, 7) == "Eroare:")
+                    {
+                        ++errorScreenCount;
+                        ++totalErrors;
+                    }
+                }
+                else if (line == "Nu puteti sa sariti peste pasul END.")
+                {
+                    ++skippedStepCount;
+                }
+            }
+        }
+    }
+
+    file.close();
+
+    if (!found)
+    {
+        cout << "Procesul " << processName << " nu a fost gasit." << endl;
+        return;
+    }
+
+    cout << "Analiza procesului '" << processName << "':" << endl;
+    cout << "De cate ori a fost initiat procesul: " << initiatedCount << endl;
+    cout << "De cate ori a fost finalizat fluxul: " << completedProcessCount << endl;
+    cout << "De cate ori a fost sarit un pas: " << skippedStepCount << endl;
+    cout << "Numarul de ecrane de eroare afisate pentru fiecare pas: " << errorScreenCount << endl;
+
+    if (completedProcessCount > 0)
+    {
+        double averageErrors = static_cast<double>(totalErrors) / completedProcessCount;
+        cout << "Numarul mediu de erori pentru fiecare proces finalizat: " << averageErrors << endl;
+    }
+    else
+    {
+        cout << "Nu exista procese finalizate pentru calculul numarului mediu de erori." << endl;
+    }
+}
+
 int main()
 {
     ofstream file;
-
     try
     {
         int choice;
@@ -925,6 +1246,7 @@ int main()
             cout << "1. Creare proces nou\n";
             cout << "2. Rulare proces\n";
             cout << "3. Stergere proces\n";
+            cout << "4. Analiza unui proces\n";
             cout << "0. Iesire\n";
             cout << "Optiune: ";
             cin >> choice;
@@ -934,8 +1256,8 @@ int main()
             {
             case 1:
                 addStepsToProcess(file);
-                timestamp = generateTimestamp(); 
-                cout << "Proces creat la data: " << timestamp << endl; 
+                timestamp = generateTimestamp();
+                cout << "Proces creat la data: " << timestamp << endl;
                 break;
 
             case 2:
@@ -970,6 +1292,15 @@ int main()
                 break;
             }
 
+            case 4:
+            {
+                string processToAnalyze;
+                cout << "Introduceti numele procesului pe care doriti sa il analizati: ";
+                cin >> processToAnalyze;
+                analyzeProcess(processToAnalyze);
+                break;
+            }
+
             case 0:
                 cout << "Iesire din program." << endl;
                 break;
@@ -979,6 +1310,18 @@ int main()
                 break;
             }
         } while (choice != 0);
+    }
+    catch (const FileOperationException &fileEx)
+    {
+        cerr << "Eroare la operațiile cu fișiere: " << fileEx.what() << endl;
+    }
+    catch (const ProcessNotFoundException &procEx)
+    {
+        cerr << "Eroare: " << procEx.what() << endl;
+    }
+    catch (const StepNotFoundException &stepEx)
+    {
+        cerr << "Eroare: " << stepEx.what() << endl;
     }
     catch (const exception &ex)
     {
