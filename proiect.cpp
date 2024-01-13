@@ -189,37 +189,39 @@ public:
 };
 
 // Clasa pentru CALCULUS Step
+
+template <typename T>
 class CalculusStep : public Step
 {
 private:
     int steps;
-    string operation;
-    float result; // rezultatul operatiei
+    std::string operation;
+    T result; // rezultatul operatiei
 
 public:
-    CalculusStep(int steps, const string &operation) : steps(steps), operation(operation), result(0) {}
+    CalculusStep(int steps, const std::string &operation) : steps(steps), operation(operation), result(0) {}
 
-    string getStepName() const override
+    std::string getStepName() const override
     {
         return "CALCULUS";
     }
 
     void displayStepInfo() const override
     {
-        cout << "Steps: " << steps << endl;
-        cout << "Operation: " << operation << endl;
-        cout << "Result: " << result << endl;
+        std::cout << "Steps: " << steps << std::endl;
+        std::cout << "Operation: " << operation << std::endl;
+        std::cout << "Result: " << result << std::endl;
     }
 
-    void writeDetailsToFile(ofstream &file) const override
+    void writeDetailsToFile(std::ofstream &file) const override
     {
-        file << "CALCULUS Step" << endl;
-        file << "Numar: " << steps << endl;
-        file << "Operatie: " << operation << endl;
-        file << "Rezultat: " << result << endl;
+        file << "CALCULUS Step" << std::endl;
+        file << "Numar: " << steps << std::endl;
+        file << "Operatie: " << operation << std::endl;
+        file << "Rezultat: " << result << std::endl;
     }
 
-    void performOperation(float inputNumber)
+    void performOperation(T inputNumber)
     {
         if (operation == "+")
         {
@@ -241,24 +243,24 @@ public:
             }
             else
             {
-                cout << "Nu se poate împărți la zero." << endl;
+                std::cout << "Nu se poate împărți la zero." << std::endl;
             }
         }
         else if (operation == "min")
         {
-            result = min(inputNumber, static_cast<float>(steps));
+            result = std::min(inputNumber, static_cast<T>(steps));
         }
         else if (operation == "max")
         {
-            result = max(inputNumber, static_cast<float>(steps));
+            result = std::max(inputNumber, static_cast<T>(steps));
         }
         else
         {
-            cout << "Operație necunoscută." << endl;
+            std::cout << "Operație necunoscută." << std::endl;
         }
     }
 
-    float getResult() const
+    T getResult() const
     {
         return result;
     }
