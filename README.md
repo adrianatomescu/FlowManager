@@ -1,4 +1,4 @@
-## OOP 2023 Project: Process Builder
+## OOP 2023 Project: Flow Manager
 
 ### Vision:
 Our vision is to create an intuitive application empowering users to design custom process flows tailored to their work needs, enabling seamless automation and optimization.
